@@ -1,0 +1,39 @@
+name: Ittefaq Daily Paper Upload
+
+on:
+  schedule:
+    - cron: '0 1 * * *'   # Daily at 7 AM Bangladesh time
+  workflow_dispatch:
+
+jobs:
+  run-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Ittefaq uploader (retry 3 times)
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i..."
+            node ittefaq-daily.js && break || sleep 30
+          done
+
+      - name: Fail if all retries failed
+        if: failure()
+        run: |
+          echo "❌ Ittefaq upload failed after retries"
