@@ -1,0 +1,25 @@
+# Node dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment & secrets
+.env
+*.env
+
+# Google auth / secrets
+token.json
+oauth-client.json
+service-account.json
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# PDFs generated locally (optional)
+page-*.pdf
+ittefaq-merged.pdf
+ittefaq-final*.pdf
