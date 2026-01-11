@@ -1,52 +1,35 @@
-const fs = require('fs');
 const { google } = require('googleapis');
-const readline = require('readline');
+
+/**
+ * GitHub Actions safe OAuth for Google Drive.
+ * Requires two secrets:
+ * - GDRIVE_OAUTH_JSON => contents of client_secret_*.json
+ * - GDRIVE_TOKEN_JSON => contents of token.json with refresh token
+ */
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
-const TOKEN_PATH = 'token.json';
 
 async function authorize() {
-  const credentials = JSON.parse(fs.readFileSync('client_secret_199617266500-ul7gspgu8j65vrkn4scqlmi5inoe46tt.apps.googleusercontent.com.json'));
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
+  // Read client secret from environment variable
+  const credentialsJSON = process.env.GDRIVE_OAUTH_JSON;
+  if (!credentialsJSON) throw new Error('GDRIVE_OAUTH_JSON not set');
+
+  const credentials = JSON.parse(credentialsJSON);
+  const { client_id, client_secret, redirect_uris } = credentials.installed;
 
   const oAuth2Client = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  'urn:ietf:wg:oauth:2.0:oob'
-);
-
-
-  if (fs.existsSync(TOKEN_PATH)) {
-    oAuth2Client.setCredentials(
-      JSON.parse(fs.readFileSync(TOKEN_PATH))
-    );
-    return oAuth2Client;
-  }
-
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES
-  });
-
-  console.log('Authorize this app by visiting this URL:\n', authUrl);
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  const code = await new Promise(resolve =>
-    rl.question('Enter the code here: ', answer => {
-      rl.close();
-      resolve(answer);
-    })
+    client_id,
+    client_secret,
+    redirect_uris[0]
   );
 
-  const { tokens } = await oAuth2Client.getToken(code);
-  oAuth2Client.setCredentials(tokens);
-  fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
+  // Read existing token from environment variable
+  const tokenJSON = process.env.GDRIVE_TOKEN_JSON;
+  if (!tokenJSON) throw new Error('GDRIVE_TOKEN_JSON not set');
 
-  console.log('✅ OAuth token saved');
+  const tokens = JSON.parse(tokenJSON);
+  oAuth2Client.setCredentials(tokens);
+
   return oAuth2Client;
 }
 
