@@ -25,9 +25,11 @@ function cleanupTempFiles(totalPages) {
   page.setDefaultTimeout(60000);
 
   console.log('🌐 Going to Ittefaq homepage...');
-  await page.goto('https://epaper.ittefaq.com.bd/', { waitUntil: 'let BASE_URL;
+  let BASE_URL; // declare the variable here
 
+await page.goto('https://epaper.ittefaq.com.bd/', { waitUntil: 'domcontentloaded' });
 // Try to find 1st-edition
+
 const editionOption = await page.$('option[data-alias="1st-edition"]');
 if (editionOption) {
   const value = await editionOption.getAttribute('value');      
@@ -35,9 +37,10 @@ if (editionOption) {
   BASE_URL = `https://epaper.ittefaq.com.bd/edition/${value}/${alias}/page`;
   console.log('✅ 1st-edition found:', BASE_URL);
 } else {
-  // Fallback to latest edition (whatever the homepage shows)
+  // Fallback to latest edition
   BASE_URL = 'https://epaper.ittefaq.com.bd/edition/latest/page';
   console.log('⚠️ 1st-edition not found, using latest edition:', BASE_URL);
+}
 }
   console.log('✅ Downloading from:', BASE_URL);
 
