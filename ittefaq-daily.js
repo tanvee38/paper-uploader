@@ -41,7 +41,7 @@ if (editionOption) {
   BASE_URL = 'https://epaper.ittefaq.com.bd/edition/latest/page';
   console.log('⚠️ 1st-edition not found, using latest edition:', BASE_URL);
 }
-}
+
   console.log('✅ Downloading from:', BASE_URL);
 
   // Number of pages (adjust if some editions have more pages)
