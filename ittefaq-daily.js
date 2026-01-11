@@ -25,19 +25,20 @@ function cleanupTempFiles(totalPages) {
   page.setDefaultTimeout(60000);
 
   console.log('🌐 Going to Ittefaq homepage...');
-  await page.goto('https://epaper.ittefaq.com.bd/', { waitUntil: 'domcontentloaded' });
+  await page.goto('https://epaper.ittefaq.com.bd/', { waitUntil: 'let BASE_URL;
 
-  // Select 1st-edition option
-  const editionOption = await page.$('option[data-alias="1st-edition"]');
-  if (!editionOption) {
-    console.error('❌ Could not find 1st-edition option');
-    await browser.close();
-    return;
-  }
-
-  const value = await editionOption.getAttribute('value');      // e.g., "2512"
-  const alias = await editionOption.getAttribute('data-alias'); // "1st-edition"
-  const BASE_URL = `https://epaper.ittefaq.com.bd/edition/${value}/${alias}/page`;
+// Try to find 1st-edition
+const editionOption = await page.$('option[data-alias="1st-edition"]');
+if (editionOption) {
+  const value = await editionOption.getAttribute('value');      
+  const alias = await editionOption.getAttribute('data-alias'); 
+  BASE_URL = `https://epaper.ittefaq.com.bd/edition/${value}/${alias}/page`;
+  console.log('✅ 1st-edition found:', BASE_URL);
+} else {
+  // Fallback to latest edition (whatever the homepage shows)
+  BASE_URL = 'https://epaper.ittefaq.com.bd/edition/latest/page';
+  console.log('⚠️ 1st-edition not found, using latest edition:', BASE_URL);
+}
   console.log('✅ Downloading from:', BASE_URL);
 
   // Number of pages (adjust if some editions have more pages)
