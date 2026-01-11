@@ -27,6 +27,9 @@ jobs:
       - name: Run Ittefaq uploader (retry 3 times)
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_OAUTH_JSON: ${{ secrets.GDRIVE_OAUTH_JSON }}
+          GDRIVE_TOKEN_JSON: ${{ secrets.GDRIVE_TOKEN_JSON }}
+
         run: |
           for i in 1 2 3; do
             echo "Attempt $i..."
